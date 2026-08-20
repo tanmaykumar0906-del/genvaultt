@@ -110,10 +110,11 @@ function Reveal({ children, delay = 0, className = "", style = {} }) {
           obs.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.05, rootMargin: "200px" }
     );
     if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
+    const fallback = setTimeout(() => setShown(true), 1200);
+    return () => { obs.disconnect(); clearTimeout(fallback); };
   }, []);
   return (
     <div
