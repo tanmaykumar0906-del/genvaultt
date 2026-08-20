@@ -249,10 +249,11 @@ function VaultObject() {
 }
 
 /* ---------------- Product Card ---------------- */
-function ProductCard({ p, onOpen }) {
+function ProductCard({ p, onOpen, onQuickAdd }) {
   const formatPrice = useContext(CurrencyContext);
   const cardRef = useRef(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [added, setAdded] = useState(false);
   const handleMove = (e) => {
     const r = cardRef.current.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
@@ -273,7 +274,17 @@ function ProductCard({ p, onOpen }) {
         {p.one && <span className="gv-badge gv-badge-solid">ONE OF ONE</span>}
         {!p.one && p.stock <= 2 && <span className="gv-badge">ONLY {p.stock} LEFT</span>}
         <div className="gv-card-overlay">
-          <button className="gv-quickadd" onClick={(e) => e.stopPropagation()}>Quick Add</button>
+          <button
+            className="gv-quickadd"
+            disabled={p.stock <= 0}
+            onClick={(event) => {
+              event.stopPropagation();
+              if (p.stock <= 0) return;
+              onQuickAdd({ ...p, size: p.size });
+              setAdded(true);
+              window.setTimeout(() => setAdded(false), 1400);
+            }}
+          >{p.stock <= 0 ? "Sold out" : added ? "Added ✓" : "Quick Add"}</button>
         </div>
       </div>
       <div className="gv-card-info">
@@ -488,7 +499,7 @@ function AccountDrawer({ open, onClose, user, setUser }) {
 }
 
 /* ---------------- Home ---------------- */
-function Home({ setView, openProduct, products }) {
+function Home({ setView, openProduct, products, addToCart }) {
   return (
     <>
       <section className="gv-hero">
@@ -560,7 +571,7 @@ function Home({ setView, openProduct, products }) {
         <div className="gv-grid">
           {products.slice(0, 4).map((p, i) => (
             <Reveal key={p.id} delay={i * 0.07}>
-              <ProductCard p={p} onOpen={openProduct} />
+              <ProductCard p={p} onOpen={openProduct} onQuickAdd={addToCart} />
             </Reveal>
           ))}
         </div>
@@ -606,7 +617,7 @@ function Home({ setView, openProduct, products }) {
 }
 
 /* ---------------- Shop ---------------- */
-function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusNonce }) {
+function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusNonce, addToCart }) {
   const [active, setActive] = useState("All");
   const searchRef = useRef(null);
 
@@ -651,7 +662,7 @@ function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusN
       <div className="gv-grid">
         {filtered.map((p, i) => (
           <Reveal key={p.id} delay={(i % 4) * 0.06}>
-            <ProductCard p={p} onOpen={openProduct} />
+            <ProductCard p={p} onOpen={openProduct} onQuickAdd={addToCart} />
           </Reveal>
         ))}
       </div>
@@ -964,8 +975,8 @@ export default function App() {
       <FavoritesDrawer open={favoritesOpen} onClose={() => setFavoritesOpen(false)} items={favoriteProducts} onRemove={toggleFavorite} onOpen={openProduct} />
       <AccountDrawer open={accountOpen} onClose={() => setAccountOpen(false)} user={user} setUser={setUser} />
       <main className="gv-main" ref={mainRef}>
-        {view === "home" && <Home setView={setView} openProduct={openProduct} products={products} />}
-        {view === "shop" && <Shop openProduct={openProduct} products={products} searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchFocusNonce={searchFocusNonce} />}
+        {view === "home" && <Home setView={setView} openProduct={openProduct} products={products} addToCart={addToCart} />}
+        {view === "shop" && <Shop openProduct={openProduct} products={products} searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchFocusNonce={searchFocusNonce} addToCart={addToCart} />}
         {view === "product" && product && <ProductDetail product={product} setView={setView} addToCart={addToCart} isFavorite={favoriteIds.includes(product.id)} onToggleFavorite={toggleFavorite} />}
         {view === "journal" && <JournalPage />}
         {view === "about" && <AboutPage />}
