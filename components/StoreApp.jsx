@@ -331,7 +331,7 @@ function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, onAccount, 
 }
 
 /* ---------------- Cart Drawer ---------------- */
-function CartDrawer({ open, onClose, items, onRemove }) {
+function CartDrawer({ open, onClose, items, onRemove, onCheckout }) {
   const formatPrice = useContext(CurrencyContext);
   const total = items.reduce((s, i) => s + i.price, 0);
   return (
@@ -358,9 +358,63 @@ function CartDrawer({ open, onClose, items, onRemove }) {
         {items.length > 0 && (
           <div className="gv-drawer-foot">
             <div className="gv-drawer-total"><span>Total</span><span>{formatPrice(total)}</span></div>
-            <button className="gv-btn-solid" style={{ width: "100%" }}>Checkout</button>
+            <button className="gv-btn-solid" style={{ width: "100%" }} onClick={onCheckout}>Checkout</button>
           </div>
         )}
+      </aside>
+    </>
+  );
+}
+
+/* ---------------- Checkout ---------------- */
+function CheckoutDrawer({ open, onClose, items, user, onOpenAccount, onComplete }) {
+  const formatPrice = useContext(CurrencyContext);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+
+  useEffect(() => { if (user?.email) setEmail(user.email); }, [user]);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!user) { onClose(); onOpenAccount(); return; }
+    setError(""); setBusy(true);
+    const grouped = items.reduce((lines, item) => {
+      const key = `${item.id}:${item.size}`;
+      lines[key] ||= { product_id: String(item.id), size: item.size, quantity: 0 };
+      lines[key].quantity += 1;
+      return lines;
+    }, {});
+    try {
+      const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: Object.values(grouped), contact_email: email, shipping_address: { name, address, city, pincode, country: "India" } }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "Unable to create your order");
+      setComplete(true); onComplete();
+    } catch (requestError) { setError(requestError.message); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <>
+      <div className={`gv-scrim ${open ? "gv-scrim-show" : ""}`} onClick={onClose} />
+      <aside className={`gv-drawer ${open ? "gv-drawer-open" : ""}`} aria-label="Checkout">
+        <div className="gv-drawer-head"><span className="gv-label">CHECKOUT</span><button onClick={onClose} aria-label="Close checkout"><X size={18} /></button></div>
+        {complete ? <div className="gv-account-content"><h2 className="gv-h2" style={{ fontSize: 30 }}>Order received.</h2><p className="gv-ash">Your order is pending payment. Add your UPI QR or payment provider next to accept payment securely.</p><button className="gv-btn-solid" onClick={onClose}>Continue shopping</button></div> : !user ? <div className="gv-account-content"><h2 className="gv-h2" style={{ fontSize: 30 }}>Sign in to checkout.</h2><p className="gv-ash">Your account keeps your order and delivery details secure.</p><button className="gv-btn-solid" onClick={() => { onClose(); onOpenAccount(); }}>Sign in or create account</button></div> : <form className="gv-account-content" onSubmit={submit}>
+          <p className="gv-ash">Order total: <strong style={{ color: TOKENS.ink }}>{formatPrice(total)}</strong></p>
+          <input className="gv-account-input" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" type="email" required />
+          <input className="gv-account-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Full name" required />
+          <input className="gv-account-input" value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Street address" required />
+          <div className="gv-checkout-row"><input className="gv-account-input" value={city} onChange={(event) => setCity(event.target.value)} placeholder="City" required /><input className="gv-account-input" value={pincode} onChange={(event) => setPincode(event.target.value)} placeholder="PIN code" required /></div>
+          {error && <p className="gv-account-error">{error}</p>}
+          <button className="gv-btn-solid" type="submit" disabled={busy}>{busy ? "Creating order…" : "Place order"}</button>
+          <p className="gv-checkout-note">Payment will be requested after you place the order.</p>
+        </form>}
       </aside>
     </>
   );
@@ -839,6 +893,7 @@ export default function App() {
   const [product, setProduct] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cart, setCart] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -901,7 +956,8 @@ export default function App() {
       {loading && <Loader done={!loading} />}
       <CustomCursor />
       <Nav view={view} setView={setView} scrolled={scrolled} cartCount={cart.length} onCart={() => setCartOpen(true)} onSearch={openSearch} onAccount={() => setAccountOpen(true)} onFavorites={() => setFavoritesOpen(true)} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} items={cart} onRemove={removeFromCart} />
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} items={cart} onRemove={removeFromCart} onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }} />
+      <CheckoutDrawer open={checkoutOpen} onClose={() => setCheckoutOpen(false)} items={cart} user={user} onOpenAccount={() => setAccountOpen(true)} onComplete={() => setCart([])} />
       <FavoritesDrawer open={favoritesOpen} onClose={() => setFavoritesOpen(false)} items={favoriteProducts} onRemove={toggleFavorite} onOpen={openProduct} />
       <AccountDrawer open={accountOpen} onClose={() => setAccountOpen(false)} user={user} setUser={setUser} />
       <main className="gv-main" ref={mainRef}>
@@ -1101,6 +1157,8 @@ const CSS = `
 .gv-account-input:focus { border-color:var(--ink); }
 .gv-account-error { color:#9b3024; font-size:12px; margin:0; }
 .gv-account-switch { border:none; background:none; padding:6px 0; text-align:left; color:var(--olive); cursor:pointer; font-size:12px; }
+.gv-checkout-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.gv-checkout-note { color:var(--ash); font-size:11px; line-height:1.5; margin:0; }
 
 /* footer */
 .gv-footer { background:var(--ink); color:var(--bone); padding:60px 32px 24px; }
