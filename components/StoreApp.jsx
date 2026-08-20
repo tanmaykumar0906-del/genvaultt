@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useContext } from "react";
 import * as THREE from "three";
 import { Search, User, Heart, ShoppingBag, X, ArrowLeft, ArrowRight, Menu } from "lucide-react";
 
@@ -27,6 +27,8 @@ const TOKENS = {
 };
 
 const CATS = ["All", "Tees", "Shirts", "Hoodies", "Jackets", "Pants", "Vintage", "Y2K", "New Drops"];
+const INR_PER_USD = 95.21;
+const CurrencyContext = React.createContext((amount) => `₹${amount}`);
 
 const GRADIENTS = {
   rust: "linear-gradient(155deg,#6b5744 0%,#3f342a 55%,#8a7256 100%)",
@@ -40,14 +42,14 @@ const GRADIENTS = {
 };
 
 const PRODUCTS = [
-  { id: 1, name: "Oversized Flannel — 90s Wash", cat: "Shirts", tags: ["Vintage"], price: 58, size: "M", condition: "Excellent", grad: GRADIENTS.rust, one: false, stock: 3, code: "GV-014" },
-  { id: 2, name: "Vault Cargo Pants", cat: "Pants", tags: ["New Drops"], price: 72, size: "32", condition: "Good", grad: GRADIENTS.olive, one: false, stock: 2, code: "GV-027" },
-  { id: 3, name: "Y2K Zip Hoodie", cat: "Hoodies", tags: ["Y2K"], price: 64, size: "L", condition: "Excellent", grad: GRADIENTS.silver, one: false, stock: 4, code: "GV-031" },
-  { id: 4, name: "Archive Tee — Blank 90s", cat: "Tees", tags: ["Vintage"], price: 28, size: "M", condition: "Good", grad: GRADIENTS.bone, one: false, stock: 6, code: "GV-006" },
-  { id: 5, name: "Silver Buckle Jacket", cat: "Jackets", tags: ["Rare"], price: 148, size: "L", condition: "One of One", grad: GRADIENTS.metal, one: true, stock: 1, code: "GV-002" },
-  { id: 6, name: "Faded Denim Trucker", cat: "Jackets", tags: ["Vintage"], price: 86, size: "M", condition: "Excellent", grad: GRADIENTS.denim, one: false, stock: 2, code: "GV-019" },
-  { id: 7, name: "Wide Leg Trousers", cat: "Pants", tags: ["New Drops"], price: 54, size: "30", condition: "Good", grad: GRADIENTS.clay, one: false, stock: 3, code: "GV-041" },
-  { id: 8, name: "Mesh Layer Longsleeve", cat: "Tees", tags: ["Y2K"], price: 36, size: "S", condition: "Excellent", grad: GRADIENTS.smoke, one: false, stock: 1, code: "GV-009" },
+  { id: 1, name: "Oversized Flannel — 90s Wash", cat: "Shirts", tags: ["Vintage"], price: 1299, size: "M", condition: "Excellent", grad: GRADIENTS.rust, one: false, stock: 3, code: "GV-014" },
+  { id: 2, name: "Vault Cargo Pants", cat: "Pants", tags: ["New Drops"], price: 1799, size: "32", condition: "Good", grad: GRADIENTS.olive, one: false, stock: 2, code: "GV-027" },
+  { id: 3, name: "Y2K Zip Hoodie", cat: "Hoodies", tags: ["Y2K"], price: 1599, size: "L", condition: "Excellent", grad: GRADIENTS.silver, one: false, stock: 4, code: "GV-031" },
+  { id: 4, name: "Archive Tee — Blank 90s", cat: "Tees", tags: ["Vintage"], price: 699, size: "M", condition: "Good", grad: GRADIENTS.bone, one: false, stock: 6, code: "GV-006" },
+  { id: 5, name: "Silver Buckle Jacket", cat: "Jackets", tags: ["Rare"], price: 4999, size: "L", condition: "One of One", grad: GRADIENTS.metal, one: true, stock: 1, code: "GV-002" },
+  { id: 6, name: "Faded Denim Trucker", cat: "Jackets", tags: ["Vintage"], price: 2199, size: "M", condition: "Excellent", grad: GRADIENTS.denim, one: false, stock: 2, code: "GV-019" },
+  { id: 7, name: "Wide Leg Trousers", cat: "Pants", tags: ["New Drops"], price: 1349, size: "30", condition: "Good", grad: GRADIENTS.clay, one: false, stock: 3, code: "GV-041" },
+  { id: 8, name: "Mesh Layer Longsleeve", cat: "Tees", tags: ["Y2K"], price: 899, size: "S", condition: "Excellent", grad: GRADIENTS.smoke, one: false, stock: 1, code: "GV-009" },
 ];
 
 const COLLECTIONS = [
@@ -248,6 +250,7 @@ function VaultObject() {
 
 /* ---------------- Product Card ---------------- */
 function ProductCard({ p, onOpen }) {
+  const formatPrice = useContext(CurrencyContext);
   const cardRef = useRef(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const handleMove = (e) => {
@@ -280,7 +283,7 @@ function ProductCard({ p, onOpen }) {
         </div>
         <h3 className="gv-card-name">{p.name}</h3>
         <div className="gv-card-bottom">
-          <span>${p.price}</span>
+          <span>{formatPrice(p.price)}</span>
           <span className="gv-ash">Size {p.size}</span>
         </div>
       </div>
@@ -329,6 +332,7 @@ function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, onAccount, 
 
 /* ---------------- Cart Drawer ---------------- */
 function CartDrawer({ open, onClose, items, onRemove }) {
+  const formatPrice = useContext(CurrencyContext);
   const total = items.reduce((s, i) => s + i.price, 0);
   return (
     <>
@@ -345,7 +349,7 @@ function CartDrawer({ open, onClose, items, onRemove }) {
               <div className="gv-drawer-thumb" style={{ background: it.grad }} />
               <div style={{ flex: 1 }}>
                 <div className="gv-card-name" style={{ fontSize: 13 }}>{it.name}</div>
-                <div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>Size {it.size} · ${it.price}</div>
+                <div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>Size {it.size} · {formatPrice(it.price)}</div>
               </div>
               <button className="gv-drawer-remove" onClick={() => onRemove(idx)} data-cursor-hover>Remove</button>
             </div>
@@ -353,7 +357,7 @@ function CartDrawer({ open, onClose, items, onRemove }) {
         </div>
         {items.length > 0 && (
           <div className="gv-drawer-foot">
-            <div className="gv-drawer-total"><span>Total</span><span>${total}</span></div>
+            <div className="gv-drawer-total"><span>Total</span><span>{formatPrice(total)}</span></div>
             <button className="gv-btn-solid" style={{ width: "100%" }}>Checkout</button>
           </div>
         )}
@@ -364,6 +368,7 @@ function CartDrawer({ open, onClose, items, onRemove }) {
 
 /* ---------------- Favorites ---------------- */
 function FavoritesDrawer({ open, onClose, items, onRemove, onOpen }) {
+  const formatPrice = useContext(CurrencyContext);
   return (
     <>
       <div className={`gv-scrim ${open ? "gv-scrim-show" : ""}`} onClick={onClose} />
@@ -374,7 +379,7 @@ function FavoritesDrawer({ open, onClose, items, onRemove, onOpen }) {
           {items.map((item) => (
             <div className="gv-drawer-item" key={item.id}>
               <button className="gv-drawer-thumb gv-thumb-button" style={{ background: item.grad }} onClick={() => { onOpen(item); onClose(); }} aria-label={`View ${item.name}`} />
-              <div style={{ flex: 1 }}><div className="gv-card-name" style={{ fontSize: 13 }}>{item.name}</div><div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>${item.price}</div></div>
+              <div style={{ flex: 1 }}><div className="gv-card-name" style={{ fontSize: 13 }}>{item.name}</div><div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>{formatPrice(item.price)}</div></div>
               <button className="gv-drawer-remove" onClick={() => onRemove(item.id)}>Remove</button>
             </div>
           ))}
@@ -600,6 +605,7 @@ function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusN
 
 /* ---------------- Product Detail ---------------- */
 function ProductDetail({ product, setView, addToCart, isFavorite, onToggleFavorite }) {
+  const formatPrice = useContext(CurrencyContext);
   const [size, setSize] = useState(product.size);
   const [added, setAdded] = useState(false);
   const sizes = ["XS", "S", "M", "L", "XL"];
@@ -620,7 +626,7 @@ function ProductDetail({ product, setView, addToCart, isFavorite, onToggleFavori
         <div className="gv-pdp-info">
           <span className="gv-label">{product.code} · {product.cat}</span>
           <h1 className="gv-h1" style={{ marginTop: 10 }}>{product.name}</h1>
-          <div className="gv-pdp-price">${product.price}</div>
+          <div className="gv-pdp-price">{formatPrice(product.price)}</div>
           <p className="gv-ash" style={{ fontSize: 13, marginTop: -8 }}>
             {product.one ? "Only one exists — once it's gone, it's gone." : `${product.stock} left in this size.`}
           </p>
@@ -841,6 +847,7 @@ export default function App() {
   const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [favoriteIds, setFavoriteIds] = useState([]);
+  const [currency, setCurrency] = useState("INR");
   const [loading, setLoading] = useState(true);
   const mainRef = useRef(null);
   const { products } = useProducts();
@@ -850,6 +857,15 @@ export default function App() {
   }, []);
 
   useEffect(() => { window.localStorage.setItem("gv-favorites", JSON.stringify(favoriteIds)); }, [favoriteIds]);
+
+  useEffect(() => {
+    const fallbackCurrency = Intl.DateTimeFormat().resolvedOptions().timeZone === "Asia/Kolkata" || navigator.language?.toLowerCase() === "en-in" ? "INR" : "USD";
+    fetch("/api/currency").then((response) => response.ok ? response.json() : null).then((data) => setCurrency(data?.currency || fallbackCurrency)).catch(() => setCurrency(fallbackCurrency));
+  }, []);
+
+  const formatPrice = useMemo(() => (inrAmount) => new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en-US", {
+    style: "currency", currency, minimumFractionDigits: currency === "INR" ? 0 : 2, maximumFractionDigits: currency === "INR" ? 0 : 2,
+  }).format(currency === "INR" ? inrAmount : inrAmount / INR_PER_USD), [currency]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1500);
@@ -880,7 +896,7 @@ export default function App() {
   const favoriteProducts = products.filter((item) => favoriteIds.includes(item.id));
 
   return (
-    <div className="gv-root">
+    <CurrencyContext.Provider value={formatPrice}><div className="gv-root">
       <style>{CSS}</style>
       {loading && <Loader done={!loading} />}
       <CustomCursor />
@@ -896,7 +912,7 @@ export default function App() {
         {view === "about" && <AboutPage />}
         <Footer setView={setView} />
       </main>
-    </div>
+    </div></CurrencyContext.Provider>
   );
 }
 
