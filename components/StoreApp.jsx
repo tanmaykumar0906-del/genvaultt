@@ -99,23 +99,53 @@ function CustomCursor() {
 }
 
 /* ---------------- Reveal-on-scroll wrapper ---------------- */
+/* ---------------- Reveal-on-scroll wrapper ---------------- */
 function Reveal({ children, delay = 0, className = "", style = {} }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(false);
+
   useEffect(() => {
-    const obs = new IntersectionObserver(
+    const element = ref.current;
+
+    if (!element) {
+      setShown(true);
+      return;
+    }
+
+    const scrollContainer = document.querySelector(".gv-main");
+
+    if (!("IntersectionObserver" in window)) {
+      setShown(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setShown(true);
-          obs.disconnect();
+          observer.disconnect();
         }
       },
-      { threshold: 0.05, rootMargin: "200px" }
+      {
+        root: scrollContainer || null,
+        threshold: 0.05,
+        rootMargin: "100px 0px",
+      }
     );
-    if (ref.current) obs.observe(ref.current);
-    const fallback = setTimeout(() => setShown(true), 1200);
-    return () => { obs.disconnect(); clearTimeout(fallback); };
+
+    observer.observe(element);
+
+    const fallback = window.setTimeout(() => {
+      setShown(true);
+      observer.disconnect();
+    }, 1000);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, []);
+
   return (
     <div
       ref={ref}
@@ -130,9 +160,7 @@ function Reveal({ children, delay = 0, className = "", style = {} }) {
       {children}
     </div>
   );
-}
-
-/* ---------------- Animated headline (word-by-word) ---------------- */
+}/* ---------------- Animated headline (word-by-word) ---------------- */
 function HeadlineReveal({ text, className }) {
   const words = text.split(" ");
   return (
@@ -539,29 +567,6 @@ function Home({ setView, openProduct, products, addToCart }) {
                 <span key={i}>{t} <span className="gv-marquee-dot">✦</span></span>
               ))}
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="gv-section">
-        <Reveal>
-          <div className="gv-section-head">
-            <span className="gv-eyebrow">COLLECTIONS</span>
-            <h2 className="gv-h2">Four archives.<br />No two pieces alike.</h2>
-          </div>
-        </Reveal>
-        <div className="gv-collections">
-          {COLLECTIONS.map((c, i) => (
-            <Reveal key={c.key} delay={i * 0.08}>
-              <button className="gv-collection" data-cursor-hover onClick={() => setView("shop")}>
-                <div className="gv-collection-bg" style={c.image ? { backgroundImage: `url("${c.image}")`, backgroundSize: "cover", backgroundPosition: "center" } : { background: c.grad }} />
-                <div className="gv-collection-info">
-                  <h3>{c.title}</h3>
-                  <p>{c.line}</p>
-                  <span className="gv-arrow-link">Explore <ArrowRight size={13} /></span>
-                </div>
-              </button>
-            </Reveal>
           ))}
         </div>
       </section>
