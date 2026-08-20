@@ -471,8 +471,11 @@ function AccountDrawer({ open, onClose, user, setUser }) {
     setError(""); setBusy(true);
     try {
       const response = await fetch(`/api/auth/${mode === "login" ? "login" : "signup"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mode === "login" ? { email, password } : { email, password, full_name: name }) });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "Unable to continue");
+      const responseText = await response.text();
+      let body = null;
+      try { body = responseText ? JSON.parse(responseText) : null; } catch { /* handled below */ }
+      if (!response.ok) throw new Error(body?.error || "Account service is unavailable. Configure Supabase and try again.");
+      if (!body?.user) throw new Error("Account service returned an invalid response. Please try again.");
       setUser(body.user); onClose();
     } catch (requestError) { setError(requestError.message); }
     finally { setBusy(false); }
