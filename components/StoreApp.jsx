@@ -538,10 +538,27 @@ function AccountDrawer({ open, onClose, user, setUser }) {
 function Home({ setView, openProduct, products, addToCart }) {
   return (
     <>
-      <section className="gv-hero">
+      <section
+        className="gv-hero"
+        style={{
+          backgroundImage: 'url("/images/hero-background.png")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <div className="gv-hero-grain" />
-        <div className="gv-hero-vault" style={{ backgroundImage: 'url("/images/archive-background.jpg")', backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="gv-hero-content">
+        
+        <div
+          className="gv-hero-content"
+          style={{
+            maxWidth: "700px",
+            margin: "0 auto",
+            textAlign: "center",
+            transform: "scale(0.88)",
+            transformOrigin: "center center",
+          }}
+        >
           <span className="gv-eyebrow" style={{ animation: "gv-fade-in 0.8s ease both" }}>DROP 001 — THE SUMMER ARCHIVE</span>
           <h1 className="gv-hero-title">
             <HeadlineReveal text="FIND YOUR" />
