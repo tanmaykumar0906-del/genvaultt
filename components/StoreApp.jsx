@@ -41,11 +41,15 @@ const GRADIENTS = {
   smoke: "linear-gradient(155deg,#6f6d68 0%,#2a2927 55%,#9a978e 100%)",
 };
 
+const productMediaStyle = (product) => product.image
+  ? { backgroundImage: `url("${product.image}")`, backgroundSize: "cover", backgroundPosition: "center" }
+  : { background: product.grad };
+
 const PRODUCTS = [
   { id: 1, name: "Oversized Flannel — 90s Wash", cat: "Shirts", tags: ["Vintage"], price: 1299, size: "M", condition: "Excellent", grad: GRADIENTS.rust, one: false, stock: 3, code: "GV-014" },
   { id: 2, name: "Vault Cargo Pants", cat: "Pants", tags: ["New Drops"], price: 1799, size: "32", condition: "Good", grad: GRADIENTS.olive, one: false, stock: 2, code: "GV-027" },
   { id: 3, name: "Y2K Zip Hoodie", cat: "Hoodies", tags: ["Y2K"], price: 1599, size: "L", condition: "Excellent", grad: GRADIENTS.silver, one: false, stock: 4, code: "GV-031" },
-  { id: 4, name: "Archive Tee — Blank 90s", cat: "Tees", tags: ["Vintage"], price: 699, size: "M", condition: "Good", grad: GRADIENTS.bone, one: false, stock: 6, code: "GV-006" },
+  { id: 4, name: "Archive Tee — Blank 90s", cat: "Tees", tags: ["Vintage"], price: 699, size: "M", condition: "Good", grad: GRADIENTS.bone, image: "https://i.pinimg.com/736x/59/19/e4/5919e42c81aecaaa59bd1a9a8398f28e.jpg", one: false, stock: 6, code: "GV-006" },
   { id: 5, name: "Silver Buckle Jacket", cat: "Jackets", tags: ["Rare"], price: 4999, size: "L", condition: "One of One", grad: GRADIENTS.metal, one: true, stock: 1, code: "GV-002" },
   { id: 6, name: "Faded Denim Trucker", cat: "Jackets", tags: ["Vintage"], price: 2199, size: "M", condition: "Excellent", grad: GRADIENTS.denim, one: false, stock: 2, code: "GV-019" },
   { id: 7, name: "Wide Leg Trousers", cat: "Pants", tags: ["New Drops"], price: 1349, size: "30", condition: "Good", grad: GRADIENTS.clay, one: false, stock: 3, code: "GV-041" },
@@ -270,7 +274,7 @@ function ProductCard({ p, onOpen, onQuickAdd }) {
       onClick={() => onOpen(p)}
       style={{ transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
     >
-      <div className="gv-card-img" style={{ background: p.grad }}>
+      <div className="gv-card-img" style={productMediaStyle(p)}>
         {p.one && <span className="gv-badge gv-badge-solid">ONE OF ONE</span>}
         {!p.one && p.stock <= 2 && <span className="gv-badge">ONLY {p.stock} LEFT</span>}
         <div className="gv-card-overlay">
@@ -357,7 +361,7 @@ function CartDrawer({ open, onClose, items, onRemove, onCheckout }) {
           {items.length === 0 && <p className="gv-ash" style={{ padding: "40px 0", fontSize: 13 }}>Nothing in here yet — every piece is one of few.</p>}
           {items.map((it, idx) => (
             <div className="gv-drawer-item" key={idx}>
-              <div className="gv-drawer-thumb" style={{ background: it.grad }} />
+              <div className="gv-drawer-thumb" style={productMediaStyle(it)} />
               <div style={{ flex: 1 }}>
                 <div className="gv-card-name" style={{ fontSize: 13 }}>{it.name}</div>
                 <div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>Size {it.size} · {formatPrice(it.price)}</div>
@@ -446,7 +450,7 @@ function FavoritesDrawer({ open, onClose, items, onRemove, onOpen }) {
           {items.length === 0 && <p className="gv-ash" style={{ padding: "40px 0", fontSize: 13 }}>Save pieces you love here for later.</p>}
           {items.map((item) => (
             <div className="gv-drawer-item" key={item.id}>
-              <button className="gv-drawer-thumb gv-thumb-button" style={{ background: item.grad }} onClick={() => { onOpen(item); onClose(); }} aria-label={`View ${item.name}`} />
+              <button className="gv-drawer-thumb gv-thumb-button" style={productMediaStyle(item)} onClick={() => { onOpen(item); onClose(); }} aria-label={`View ${item.name}`} />
               <div style={{ flex: 1 }}><div className="gv-card-name" style={{ fontSize: 13 }}>{item.name}</div><div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>{formatPrice(item.price)}</div></div>
               <button className="gv-drawer-remove" onClick={() => onRemove(item.id)}>Remove</button>
             </div>
@@ -685,12 +689,12 @@ function ProductDetail({ product, setView, addToCart, isFavorite, onToggleFavori
       <button className="gv-back" data-cursor-hover onClick={() => setView("shop")}><ArrowLeft size={14} /> Back to Shop</button>
       <div className="gv-pdp-grid">
         <div className="gv-pdp-gallery">
-          <div className="gv-pdp-main" style={{ background: product.grad }}>
+          <div className="gv-pdp-main" style={productMediaStyle(product)}>
             {product.one && <span className="gv-badge gv-badge-solid">ONE OF ONE</span>}
           </div>
           <div className="gv-pdp-thumbs">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="gv-pdp-thumb" style={{ background: product.grad, opacity: 0.55 + i * 0.15 }} />
+              <div key={i} className="gv-pdp-thumb" style={{ ...productMediaStyle(product), opacity: 0.55 + i * 0.15 }} />
             ))}
           </div>
         </div>
