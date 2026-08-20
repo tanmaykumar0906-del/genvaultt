@@ -543,7 +543,7 @@ function Home({ setView, openProduct, products, addToCart }) {
         style={{
           backgroundImage: 'url("/images/hero-background.png")',
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center center",
           backgroundRepeat: "no-repeat",
         }}
       >
@@ -1244,4 +1244,32 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+
+@media (max-width: 768px) {
+  .gv-hero {
+    min-height: 500px !important;
+    height: 500px !important;
+    background-size: 100% auto !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
+    background-color: #e8e6e2;
+  }
+
+  .gv-hero-content {
+    padding-top: 165px !important;
+    transform: none !important;
+  }
+
+  .gv-hero-title {
+    font-size: 42px !important;
+    line-height: 0.95 !important;
+  }
+
+  .gv-hero-sub {
+    font-size: 13px !important;
+  }
+}
+
 `;
+
