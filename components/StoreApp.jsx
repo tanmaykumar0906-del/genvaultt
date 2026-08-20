@@ -289,7 +289,7 @@ function ProductCard({ p, onOpen }) {
 }
 
 /* ---------------- Nav ---------------- */
-function Nav({ view, setView, scrolled, cartCount, onCart, menuOpen, setMenuOpen }) {
+function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, menuOpen, setMenuOpen }) {
   return (
     <>
       <header className={`gv-nav ${scrolled ? "gv-nav-scrolled" : ""}`}>
@@ -305,7 +305,7 @@ function Nav({ view, setView, scrolled, cartCount, onCart, menuOpen, setMenuOpen
             <button data-cursor-hover onClick={() => setView("about")} className={view === "about" ? "gv-active" : ""}>About</button>
           </nav>
           <div className="gv-nav-icons">
-            <button data-cursor-hover aria-label="Search"><Search size={17} strokeWidth={1.5} /></button>
+            <button data-cursor-hover aria-label="Search products" onClick={onSearch}><Search size={17} strokeWidth={1.5} /></button>
             <button data-cursor-hover aria-label="Account"><User size={17} strokeWidth={1.5} /></button>
             <button data-cursor-hover aria-label="Wishlist"><Heart size={17} strokeWidth={1.5} /></button>
             <button data-cursor-hover aria-label="Cart" onClick={onCart} className="gv-cart-btn">
@@ -481,17 +481,40 @@ function Home({ setView, openProduct, products }) {
 }
 
 /* ---------------- Shop ---------------- */
-function Shop({ openProduct, products }) {
+function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusNonce }) {
   const [active, setActive] = useState("All");
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, [searchFocusNonce]);
+
   const filtered = useMemo(
-    () => (active === "All" ? products : products.filter((p) => p.cat === active || p.tags.includes(active))),
-    [active, products]
+    () => products.filter((p) => {
+      const matchesCategory = active === "All" || p.cat === active || p.tags.includes(active);
+      const searchable = `${p.name} ${p.code} ${p.cat} ${p.tags.join(" ")}`.toLowerCase();
+      return matchesCategory && searchable.includes(searchQuery.trim().toLowerCase());
+    }),
+    [active, products, searchQuery]
   );
   return (
     <section className="gv-shop">
       <div className="gv-shop-head">
         <span className="gv-eyebrow">SHOP</span>
         <h1 className="gv-h1">The Full Archive</h1>
+      </div>
+      <div className="gv-search-wrap">
+        <Search size={17} strokeWidth={1.5} aria-hidden="true" />
+        <input
+          ref={searchRef}
+          className="gv-search-input"
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Search pieces, collections, or codes"
+          aria-label="Search products"
+        />
+        {searchQuery && <button className="gv-search-clear" onClick={() => setSearchQuery("")} aria-label="Clear search"><X size={15} /></button>}
       </div>
       <div className="gv-pills">
         {CATS.map((c) => (
@@ -749,6 +772,8 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocusNonce, setSearchFocusNonce] = useState(0);
   const [loading, setLoading] = useState(true);
   const mainRef = useRef(null);
   const { products } = useProducts();
@@ -770,6 +795,11 @@ export default function App() {
     mainRef.current && mainRef.current.scrollTo({ top: 0 });
   };
 
+  const openSearch = () => {
+    setView("shop");
+    setSearchFocusNonce((value) => value + 1);
+  };
+
   const openProduct = (p) => { setProduct(p); setView("product"); };
   const addToCart = (item) => setCart((c) => [...c, item]);
   const removeFromCart = (idx) => setCart((c) => c.filter((_, i) => i !== idx));
@@ -779,11 +809,11 @@ export default function App() {
       <style>{CSS}</style>
       {loading && <Loader done={!loading} />}
       <CustomCursor />
-      <Nav view={view} setView={setView} scrolled={scrolled} cartCount={cart.length} onCart={() => setCartOpen(true)} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <Nav view={view} setView={setView} scrolled={scrolled} cartCount={cart.length} onCart={() => setCartOpen(true)} onSearch={openSearch} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} items={cart} onRemove={removeFromCart} />
       <main className="gv-main" ref={mainRef}>
         {view === "home" && <Home setView={setView} openProduct={openProduct} products={products} />}
-        {view === "shop" && <Shop openProduct={openProduct} products={products} />}
+        {view === "shop" && <Shop openProduct={openProduct} products={products} searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchFocusNonce={searchFocusNonce} />}
         {view === "product" && product && <ProductDetail product={product} setView={setView} addToCart={addToCart} />}
         {view === "journal" && <JournalPage />}
         {view === "about" && <AboutPage />}
@@ -922,6 +952,11 @@ const CSS = `
 /* shop */
 .gv-shop { max-width:1280px; margin:0 auto; padding:60px 32px 90px; }
 .gv-shop-head { margin-bottom:26px; }
+.gv-search-wrap { width:min(100%, 460px); display:flex; align-items:center; gap:10px; border:1px solid var(--line); padding:0 13px; margin-bottom:20px; color:var(--ash); background:rgba(255,255,255,0.22); }
+.gv-search-wrap:focus-within { border-color:var(--ink); color:var(--ink); }
+.gv-search-input { flex:1; min-width:0; border:none; outline:none; background:transparent; color:var(--ink); padding:13px 0; font:inherit; font-size:13px; }
+.gv-search-input::placeholder { color:var(--ash); }
+.gv-search-clear { display:flex; padding:3px; border:none; background:none; color:var(--ash); cursor:pointer; }
 .gv-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:36px; border-bottom:1px solid var(--line); padding-bottom:26px; }
 .gv-pill { border:1px solid var(--line); background:transparent; padding:8px 16px; font-size:11.5px; text-transform:uppercase; letter-spacing:0.03em; cursor:pointer; transition: all 0.2s ease; }
 .gv-pill:hover { border-color:var(--ink); }
