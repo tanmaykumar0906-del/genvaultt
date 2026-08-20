@@ -57,7 +57,7 @@ const PRODUCTS = [
 ];
 
 const COLLECTIONS = [
-  { key: "summer", title: "Summer Archive", line: "Lightweight pieces, relaxed silhouettes.", grad: GRADIENTS.bone, image: "/images/products/archive-2.jpeg" },
+  { key: "summer", title: "Summer Archive", line: "Lightweight pieces, relaxed silhouettes.", grad: GRADIENTS.bone, image: "/images/products/archive-2.jpg" },
   { key: "y2k", title: "Y2K Vault", line: "Vintage-inspired, low-rise, chrome era.", grad: GRADIENTS.silver },
   { key: "dark", title: "After Dark", line: "Oversized fits, deep tonal layering.", grad: GRADIENTS.smoke },
   { key: "rare", title: "Rare Finds", line: "One-of-one pieces. Once gone, gone.", grad: GRADIENTS.metal },
