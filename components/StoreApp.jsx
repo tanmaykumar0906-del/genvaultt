@@ -393,8 +393,11 @@ function CheckoutDrawer({ open, onClose, items, user, onOpenAccount, onComplete 
     }, {});
     try {
       const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: Object.values(grouped), contact_email: email, shipping_address: { name, address, city, pincode, country: "India" } }) });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "Unable to create your order");
+      const responseText = await response.text();
+      let body = null;
+      try { body = responseText ? JSON.parse(responseText) : null; } catch { /* handled below */ }
+      if (!response.ok) throw new Error(body?.error || "Checkout is unavailable. Please try again after the store backend is configured.");
+      if (!body?.order) throw new Error("Checkout returned an invalid response. Please try again.");
       setComplete(true); onComplete();
     } catch (requestError) { setError(requestError.message); }
     finally { setBusy(false); }
