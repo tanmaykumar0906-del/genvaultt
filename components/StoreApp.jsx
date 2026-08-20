@@ -540,7 +540,7 @@ function Home({ setView, openProduct, products, addToCart }) {
     <>
       <section className="gv-hero">
         <div className="gv-hero-grain" />
-        <div className="gv-hero-vault"><VaultObject /></div>
+        <div className="gv-hero-vault" style={{ backgroundImage: 'url("/images/archive-background.jpg")', backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
         <div className="gv-hero-content">
           <span className="gv-eyebrow" style={{ animation: "gv-fade-in 0.8s ease both" }}>DROP 001 — THE SUMMER ARCHIVE</span>
           <h1 className="gv-hero-title">
@@ -1061,6 +1061,10 @@ const CSS = `
 .gv-hero-vault { position:absolute; inset:0; opacity:0.9; }
 .gv-hero-content { position:relative; text-align:center; z-index:2; padding:0 20px; }
 .gv-hero-title { font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:64px; line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; margin:14px 0 18px; }
+.gv-hero-rare {
+  color: #B85C38;
+}
+
 .gv-hero-sub { font-size:14px; color:var(--ash); max-width:360px; margin:0 auto 26px; }
 .gv-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
 .gv-scroll-cue { position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--ash); animation: gv-bob 2s ease-in-out infinite; }
