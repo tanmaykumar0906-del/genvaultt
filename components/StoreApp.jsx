@@ -57,7 +57,7 @@ const PRODUCTS = [
 ];
 
 const COLLECTIONS = [
-  { key: "summer", title: "Summer Archive", line: "Lightweight pieces, relaxed silhouettes.", grad: GRADIENTS.bone },
+  { key: "summer", title: "Summer Archive", line: "Lightweight pieces, relaxed silhouettes.", grad: GRADIENTS.bone, image: "/images/products/archive-2.jpeg" },
   { key: "y2k", title: "Y2K Vault", line: "Vintage-inspired, low-rise, chrome era.", grad: GRADIENTS.silver },
   { key: "dark", title: "After Dark", line: "Oversized fits, deep tonal layering.", grad: GRADIENTS.smoke },
   { key: "rare", title: "Rare Finds", line: "One-of-one pieces. Once gone, gone.", grad: GRADIENTS.metal },
@@ -553,7 +553,7 @@ function Home({ setView, openProduct, products, addToCart }) {
           {COLLECTIONS.map((c, i) => (
             <Reveal key={c.key} delay={i * 0.08}>
               <button className="gv-collection" data-cursor-hover onClick={() => setView("shop")}>
-                <div className="gv-collection-bg" style={{ background: c.grad }} />
+                <div className="gv-collection-bg" style={c.image ? { backgroundImage: `url("${c.image}")`, backgroundSize: "cover", backgroundPosition: "center" } : { background: c.grad }} />
                 <div className="gv-collection-info">
                   <h3>{c.title}</h3>
                   <p>{c.line}</p>
