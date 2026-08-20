@@ -289,7 +289,7 @@ function ProductCard({ p, onOpen }) {
 }
 
 /* ---------------- Nav ---------------- */
-function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, menuOpen, setMenuOpen }) {
+function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, onAccount, onFavorites, menuOpen, setMenuOpen }) {
   return (
     <>
       <header className={`gv-nav ${scrolled ? "gv-nav-scrolled" : ""}`}>
@@ -306,8 +306,8 @@ function Nav({ view, setView, scrolled, cartCount, onCart, onSearch, menuOpen, s
           </nav>
           <div className="gv-nav-icons">
             <button data-cursor-hover aria-label="Search products" onClick={onSearch}><Search size={17} strokeWidth={1.5} /></button>
-            <button data-cursor-hover aria-label="Account"><User size={17} strokeWidth={1.5} /></button>
-            <button data-cursor-hover aria-label="Wishlist"><Heart size={17} strokeWidth={1.5} /></button>
+            <button data-cursor-hover aria-label="Account" onClick={onAccount}><User size={17} strokeWidth={1.5} /></button>
+            <button data-cursor-hover aria-label="Favorites" onClick={onFavorites}><Heart size={17} strokeWidth={1.5} /></button>
             <button data-cursor-hover aria-label="Cart" onClick={onCart} className="gv-cart-btn">
               <ShoppingBag size={17} strokeWidth={1.5} />
               {cartCount > 0 && <span className="gv-cart-count">{cartCount}</span>}
@@ -357,6 +357,69 @@ function CartDrawer({ open, onClose, items, onRemove }) {
             <button className="gv-btn-solid" style={{ width: "100%" }}>Checkout</button>
           </div>
         )}
+      </aside>
+    </>
+  );
+}
+
+/* ---------------- Favorites ---------------- */
+function FavoritesDrawer({ open, onClose, items, onRemove, onOpen }) {
+  return (
+    <>
+      <div className={`gv-scrim ${open ? "gv-scrim-show" : ""}`} onClick={onClose} />
+      <aside className={`gv-drawer ${open ? "gv-drawer-open" : ""}`} aria-label="Favorite products">
+        <div className="gv-drawer-head"><span className="gv-label">FAVORITES ({items.length})</span><button onClick={onClose} aria-label="Close favorites"><X size={18} /></button></div>
+        <div className="gv-drawer-items">
+          {items.length === 0 && <p className="gv-ash" style={{ padding: "40px 0", fontSize: 13 }}>Save pieces you love here for later.</p>}
+          {items.map((item) => (
+            <div className="gv-drawer-item" key={item.id}>
+              <button className="gv-drawer-thumb gv-thumb-button" style={{ background: item.grad }} onClick={() => { onOpen(item); onClose(); }} aria-label={`View ${item.name}`} />
+              <div style={{ flex: 1 }}><div className="gv-card-name" style={{ fontSize: 13 }}>{item.name}</div><div className="gv-ash" style={{ fontSize: 12, marginTop: 4 }}>${item.price}</div></div>
+              <button className="gv-drawer-remove" onClick={() => onRemove(item.id)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ---------------- Account ---------------- */
+function AccountDrawer({ open, onClose, user, setUser }) {
+  const [mode, setMode] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setError(""); setBusy(true);
+    try {
+      const response = await fetch(`/api/auth/${mode === "login" ? "login" : "signup"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mode === "login" ? { email, password } : { email, password, full_name: name }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "Unable to continue");
+      setUser(body.user); onClose();
+    } catch (requestError) { setError(requestError.message); }
+    finally { setBusy(false); }
+  };
+  const logout = async () => { await fetch("/api/auth/logout", { method: "POST" }); setUser(null); onClose(); };
+
+  return (
+    <>
+      <div className={`gv-scrim ${open ? "gv-scrim-show" : ""}`} onClick={onClose} />
+      <aside className={`gv-drawer ${open ? "gv-drawer-open" : ""}`} aria-label="Account">
+        <div className="gv-drawer-head"><span className="gv-label">YOUR ACCOUNT</span><button onClick={onClose} aria-label="Close account"><X size={18} /></button></div>
+        {user ? <div className="gv-account-content"><p className="gv-ash">Signed in as</p><p className="gv-card-name">{user.email}</p><button className="gv-btn-outline" onClick={logout}>Sign out</button></div> : <form className="gv-account-content" onSubmit={submit}>
+          <h2 className="gv-h2" style={{ fontSize: 30 }}>{mode === "login" ? "Welcome back." : "Create account."}</h2>
+          {mode === "signup" && <input className="gv-account-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" autoComplete="name" />}
+          <input className="gv-account-input" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" type="email" autoComplete="email" required />
+          <input className="gv-account-input" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required />
+          {error && <p className="gv-account-error">{error}</p>}
+          <button className="gv-btn-solid" type="submit" disabled={busy}>{busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button>
+          <button className="gv-account-switch" type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}>{mode === "login" ? "New here? Create an account" : "Already have an account? Sign in"}</button>
+        </form>}
       </aside>
     </>
   );
@@ -536,7 +599,7 @@ function Shop({ openProduct, products, searchQuery, setSearchQuery, searchFocusN
 }
 
 /* ---------------- Product Detail ---------------- */
-function ProductDetail({ product, setView, addToCart }) {
+function ProductDetail({ product, setView, addToCart, isFavorite, onToggleFavorite }) {
   const [size, setSize] = useState(product.size);
   const [added, setAdded] = useState(false);
   const sizes = ["XS", "S", "M", "L", "XL"];
@@ -583,7 +646,7 @@ function ProductDetail({ product, setView, addToCart }) {
               {added ? "Added ✓" : "Add to Cart"}
             </button>
             <button className="gv-btn-outline" data-cursor-hover style={{ flex: 1 }}>Buy Now</button>
-            <button className="gv-icon-btn" data-cursor-hover aria-label="Wishlist"><Heart size={16} /></button>
+            <button className={`gv-icon-btn ${isFavorite ? "gv-favorite-active" : ""}`} data-cursor-hover aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"} onClick={() => onToggleFavorite(product.id)}><Heart size={16} fill={isFavorite ? "currentColor" : "none"} /></button>
           </div>
 
           <div className="gv-pdp-piece">
@@ -774,9 +837,19 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocusNonce, setSearchFocusNonce] = useState(0);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [favoritesOpen, setFavoritesOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const mainRef = useRef(null);
   const { products } = useProducts();
+
+  useEffect(() => {
+    try { setFavoriteIds(JSON.parse(window.localStorage.getItem("gv-favorites") || "[]")); } catch { setFavoriteIds([]); }
+  }, []);
+
+  useEffect(() => { window.localStorage.setItem("gv-favorites", JSON.stringify(favoriteIds)); }, [favoriteIds]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1500);
@@ -803,18 +876,22 @@ export default function App() {
   const openProduct = (p) => { setProduct(p); setView("product"); };
   const addToCart = (item) => setCart((c) => [...c, item]);
   const removeFromCart = (idx) => setCart((c) => c.filter((_, i) => i !== idx));
+  const toggleFavorite = (id) => setFavoriteIds((ids) => ids.includes(id) ? ids.filter((itemId) => itemId !== id) : [...ids, id]);
+  const favoriteProducts = products.filter((item) => favoriteIds.includes(item.id));
 
   return (
     <div className="gv-root">
       <style>{CSS}</style>
       {loading && <Loader done={!loading} />}
       <CustomCursor />
-      <Nav view={view} setView={setView} scrolled={scrolled} cartCount={cart.length} onCart={() => setCartOpen(true)} onSearch={openSearch} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <Nav view={view} setView={setView} scrolled={scrolled} cartCount={cart.length} onCart={() => setCartOpen(true)} onSearch={openSearch} onAccount={() => setAccountOpen(true)} onFavorites={() => setFavoritesOpen(true)} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} items={cart} onRemove={removeFromCart} />
+      <FavoritesDrawer open={favoritesOpen} onClose={() => setFavoritesOpen(false)} items={favoriteProducts} onRemove={toggleFavorite} onOpen={openProduct} />
+      <AccountDrawer open={accountOpen} onClose={() => setAccountOpen(false)} user={user} setUser={setUser} />
       <main className="gv-main" ref={mainRef}>
         {view === "home" && <Home setView={setView} openProduct={openProduct} products={products} />}
         {view === "shop" && <Shop openProduct={openProduct} products={products} searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchFocusNonce={searchFocusNonce} />}
-        {view === "product" && product && <ProductDetail product={product} setView={setView} addToCart={addToCart} />}
+        {view === "product" && product && <ProductDetail product={product} setView={setView} addToCart={addToCart} isFavorite={favoriteIds.includes(product.id)} onToggleFavorite={toggleFavorite} />}
         {view === "journal" && <JournalPage />}
         {view === "about" && <AboutPage />}
         <Footer setView={setView} />
@@ -896,6 +973,7 @@ const CSS = `
 .gv-btn-outline-dark { border-color:var(--bone); color:var(--bone); }
 .gv-btn-outline-dark:hover { background:var(--bone); color:var(--ink); }
 .gv-icon-btn { border:1px solid var(--line); background:none; padding:12px 14px; cursor:pointer; }
+.gv-favorite-active { color:var(--olive); border-color:var(--olive); }
 
 /* marquee */
 .gv-marquee { border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden; padding:14px 0; background:var(--charcoal); }
@@ -998,9 +1076,15 @@ const CSS = `
 .gv-drawer-items { flex:1; overflow-y:auto; }
 .gv-drawer-item { display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); align-items:center; }
 .gv-drawer-thumb { width:56px; height:70px; flex-shrink:0; }
+.gv-thumb-button { border:none; cursor:pointer; padding:0; }
 .gv-drawer-remove { background:none; border:none; font-size:10.5px; text-transform:uppercase; color:var(--ash); cursor:pointer; letter-spacing:0.04em; }
 .gv-drawer-foot { border-top:1px solid var(--line); padding-top:16px; }
 .gv-drawer-total { display:flex; justify-content:space-between; font-family:'Archivo Narrow',sans-serif; font-size:16px; margin-bottom:14px; }
+.gv-account-content { display:flex; flex-direction:column; gap:12px; padding-top:26px; }
+.gv-account-input { width:100%; border:1px solid var(--line); background:transparent; padding:13px; outline:none; font:inherit; font-size:13px; }
+.gv-account-input:focus { border-color:var(--ink); }
+.gv-account-error { color:#9b3024; font-size:12px; margin:0; }
+.gv-account-switch { border:none; background:none; padding:6px 0; text-align:left; color:var(--olive); cursor:pointer; font-size:12px; }
 
 /* footer */
 .gv-footer { background:var(--ink); color:var(--bone); padding:60px 32px 24px; }
