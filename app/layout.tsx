@@ -69,6 +69,36 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
 
+      {/* GenVault SEO Structured Data */}
+      <script
+        id="genvault-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "WebSite",
+                "@id": "https://genvaultt.vercel.app/#website",
+                name: "GenVault",
+                url: "https://genvaultt.vercel.app/",
+                description:
+                  "Curated thrift and streetwear featuring rare and one-of-a-kind fashion pieces."
+              },
+              {
+                "@type": "Organization",
+                "@id": "https://genvaultt.vercel.app/#organization",
+                name: "GenVault",
+                url: "https://genvaultt.vercel.app/",
+                description:
+                  "GenVault is a curated thrift and streetwear store featuring rare and one-of-a-kind fashion pieces."
+              }
+            ]
+          })
+        }}
+      />
+
+
       {/* Microsoft Clarity */}
       <Script
         id="microsoft-clarity"
