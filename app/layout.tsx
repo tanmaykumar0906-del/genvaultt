@@ -69,6 +69,25 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
 
+      {/* Google Analytics */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-DM6LBMKF09"
+        strategy="afterInteractive"
+      />
+
+      <Script
+        id="google-analytics"
+        strategy="afterInteractive"
+      >
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-DM6LBMKF09');
+        `}
+      </Script>
+
+
       {/* GenVault SEO Structured Data */}
       <script
         id="genvault-structured-data"
