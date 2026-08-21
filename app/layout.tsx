@@ -2,8 +2,66 @@ import "./globals.css";
 
 import Script from "next/script"
 export const metadata = {
-  title: "GenVault — Rare pieces. Your story.",
-  description: "Curated men's thrift and streetwear. One-of-one pieces, built for your generation.",
+  metadataBase: new URL("https://genvaultt.vercel.app"),
+
+  title: {
+    default: "GenVault — Rare Pieces. Your Story.",
+    template: "%s | GenVault",
+  },
+
+  description:
+    "Discover rare thrift and streetwear pieces at GenVault. Curated oversized cargos, vintage finds, Y2K styles, and one-of-a-kind pieces made for your generation.",
+
+  keywords: [
+    "GenVault",
+    "thrift fashion",
+    "streetwear",
+    "baggy cargo pants",
+    "oversized clothing",
+    "vintage streetwear",
+    "Y2K fashion",
+    "men's streetwear",
+    "rare fashion pieces",
+  ],
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    title: "GenVault — Rare Pieces. Your Story.",
+    description:
+      "Discover rare thrift and streetwear pieces. Find your next statement piece at GenVault.",
+    url: "https://genvaultt.vercel.app/",
+    siteName: "GenVault",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/hero-background.png",
+        width: 1200,
+        height: 630,
+        alt: "GenVault — Rare thrift and streetwear",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "GenVault — Rare Pieces. Your Story.",
+    description:
+      "Discover rare thrift and streetwear pieces at GenVault.",
+    images: ["/images/hero-background.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({ children }) {
