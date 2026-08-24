@@ -50,8 +50,8 @@ const PRODUCTS = [
   { id: 2, name: "Vault Cargo Pants", cat: "Pants", tags: ["New Drops"], price: 1799, size: "32", condition: "Good", grad: GRADIENTS.olive, image: "/images/products/cargo-pants.jpeg", one: false, stock: 2, code: "GV-027" },
   { id: 3, name: "Y2K Zip Hoodie", cat: "Hoodies", tags: ["Y2K"], price: 1599, size: "L", condition: "Excellent", grad: GRADIENTS.silver, image: "/images/products/y2k-hoodie.jpeg", one: false, stock: 4, code: "GV-031" },
   { id: 4, name: "Archive Tee — Blank 90s", cat: "Tees", tags: ["Vintage"], price: 699, size: "M", condition: "Good", grad: GRADIENTS.bone, image: "https://i.pinimg.com/736x/59/19/e4/5919e42c81aecaaa59bd1a9a8398f28e.jpg", one: false, stock: 6, code: "GV-006" },
-  { id: 5, name: "Silver Buckle Jacket", cat: "Jackets", tags: ["Rare"], price: 4999, size: "L", condition: "One of One", grad: GRADIENTS.metal, one: true, stock: 1, code: "GV-002" },
-  { id: 6, name: "Faded Denim Trucker", cat: "Jackets", tags: ["Vintage"], price: 2199, size: "M", condition: "Excellent", grad: GRADIENTS.denim, one: false, stock: 2, code: "GV-019" },
+  { id: 5, name: "Silver Buckle Jacket", cat: "Jackets", tags: ["Rare"], price: 4999, size: "L", condition: "One of One", grad: GRADIENTS.metal, one: true, stock: 1, image: "/img/faded-denim-trucker.jpg", code: "GV-002" },
+  { id: 6, name: "Faded Denim Trucker", cat: "Jackets", tags: ["Vintage"], price: 2199, size: "M", condition: "Excellent", grad: GRADIENTS.denim, image: "/img/Faded%20Denim%20Trucker.jpg", one: false, stock: 2, image: "/img/faded-denim-trucker.jpg", image: "/img/faded-denim-trucker.jpg", code: "GV-019" },
   { id: 7, name: "Wide Leg Trousers", cat: "Pants", tags: ["New Drops"], price: 1349, size: "30", condition: "Good", grad: GRADIENTS.clay, one: false, stock: 3, code: "GV-041" },
   { id: 8, name: "Mesh Layer Longsleeve", cat: "Tees", tags: ["Y2K"], price: 899, size: "S", condition: "Excellent", grad: GRADIENTS.smoke, one: false, stock: 1, code: "GV-009" },
 ];
