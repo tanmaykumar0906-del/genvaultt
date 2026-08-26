@@ -1,0 +1,223 @@
+/* GenVault chat widget styles — place in /public/genvault-widget.css */
+
+#gv-root, #gv-root * { box-sizing: border-box; }
+
+:root {
+  --gv-void: #14110F;
+  --gv-void-2: #1E1A17;
+  --gv-brass: #B98A46;
+  --gv-brass-bright: #D9A85F;
+  --gv-paper: #EDE6D6;
+  --gv-ink: #EDEAE4;
+  --gv-ink-dim: #A79E90;
+  --gv-line: #33302B;
+  --gv-rust: #9C5A3C;
+  --gv-font-display: 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+  --gv-font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gv-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+#gv-root {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  font-family: var(--gv-font-body);
+}
+
+.gv-launcher {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--gv-void-2);
+  border: 2px solid var(--gv-brass);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.gv-launcher:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 26px rgba(0,0,0,0.55); }
+.gv-launcher:focus-visible { outline: 2px solid var(--gv-brass-bright); outline-offset: 3px; }
+.gv-launcher svg { width: 24px; height: 24px; }
+
+.gv-launcher-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: var(--gv-rust);
+  color: var(--gv-ink);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 10px;
+  border: 2px solid var(--gv-void);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.gv-panel {
+  position: absolute;
+  bottom: 76px;
+  right: 0;
+  width: 366px;
+  max-width: calc(100vw - 32px);
+  height: 550px;
+  max-height: calc(100vh - 140px);
+  background: var(--gv-void);
+  border: 1px solid var(--gv-line);
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.gv-panel.gv-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.gv-header {
+  background: var(--gv-void-2);
+  color: var(--gv-ink);
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid var(--gv-line);
+  flex-shrink: 0;
+}
+.gv-header-top { display: flex; align-items: center; justify-content: space-between; }
+.gv-brand {
+  font-family: var(--gv-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gv-ink);
+  text-transform: uppercase;
+}
+.gv-brand span { color: var(--gv-brass-bright); }
+.gv-tagline { font-size: 11.5px; color: var(--gv-ink-dim); margin-top: 3px; letter-spacing: 0.01em; }
+.gv-close {
+  background: none; border: none; color: var(--gv-ink-dim);
+  cursor: pointer; padding: 4px; border-radius: 6px;
+}
+.gv-close:hover { color: var(--gv-ink); background: rgba(255,255,255,0.06); }
+.gv-close:focus-visible { outline: 2px solid var(--gv-brass-bright); }
+
+.gv-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--gv-void);
+}
+
+.gv-msg { max-width: 85%; font-size: 13.5px; line-height: 1.55; }
+.gv-msg-bot {
+  align-self: flex-start;
+  background: var(--gv-void-2);
+  border: 1px solid var(--gv-line);
+  color: var(--gv-ink);
+  padding: 10px 13px;
+  border-radius: 3px 12px 12px 12px;
+}
+.gv-msg-user {
+  align-self: flex-end;
+  background: var(--gv-brass);
+  color: var(--gv-void);
+  padding: 10px 13px;
+  border-radius: 12px 3px 12px 12px;
+  font-weight: 500;
+}
+
+.gv-cert {
+  align-self: flex-start;
+  max-width: 92%;
+  background: var(--gv-paper);
+  color: var(--gv-void);
+  border-radius: 3px;
+  padding: 14px 15px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+.gv-cert::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(20,17,15,0.25);
+  pointer-events: none;
+}
+.gv-cert-title {
+  font-family: var(--gv-font-display);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--gv-rust);
+  margin-bottom: 6px;
+}
+.gv-cert-body {
+  font-family: var(--gv-font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.gv-typing { align-self: flex-start; display: flex; gap: 4px; padding: 10px 13px; }
+.gv-typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gv-brass);
+  animation: gv-bounce 1.2s infinite ease-in-out;
+}
+.gv-typing span:nth-child(2) { animation-delay: 0.15s; }
+.gv-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes gv-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gv-launcher, .gv-panel, .gv-typing span { transition: none; animation: none; }
+}
+
+.gv-inputbar {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--gv-line);
+  background: var(--gv-void-2);
+  flex-shrink: 0;
+}
+.gv-input {
+  flex: 1;
+  background: var(--gv-void);
+  border: 1px solid var(--gv-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: var(--gv-font-body);
+  color: var(--gv-ink);
+  resize: none;
+  max-height: 80px;
+}
+.gv-input::placeholder { color: var(--gv-ink-dim); }
+.gv-input:focus-visible { outline: 2px solid var(--gv-brass); outline-offset: 1px; }
+.gv-send {
+  background: var(--gv-brass);
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease;
+}
+.gv-send:hover:not(:disabled) { background: var(--gv-brass-bright); }
+.gv-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.gv-send:focus-visible { outline: 2px solid var(--gv-ink); }
+.gv-send svg { width: 17px; height: 17px; }
+
+.gv-messages::-webkit-scrollbar { width: 6px; }
+.gv-messages::-webkit-scrollbar-thumb { background: var(--gv-line); border-radius: 3px; }

@@ -69,6 +69,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
 
+      <link rel="stylesheet" href="/genvault-widget.css" />
+
       {/* Google Analytics */}
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-DM6LBMKF09"
@@ -152,7 +154,12 @@ export default function RootLayout({ children }) {
           fbq('track', 'PageView');
         `}
       </Script>
-{children}</body>
+
+      {/* GenVault chat widget */}
+      <div id="gv-root"></div>
+      <Script src="/genvault-widget.js" strategy="afterInteractive" />
+
+      {children}</body>
     </html>
   );
 }
